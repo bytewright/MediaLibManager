@@ -3,14 +3,13 @@ package org.bytewright.MediaLibManager.libChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -43,9 +42,7 @@ public class LibraryChecker {
                 tasks.add(libElement);
             }
             resultCollector.setTasks(tasks);
-            Instant startInstant = Instant.now();
             resultCollector.startAndAwaitTasks();
-            LOGGER.info("Finished checking all elements in {}, duration: {}ms", directory, Duration.between(startInstant, Instant.now()).toMillis());
             resultCollector.compileResult();
         }
     }

@@ -1,18 +1,27 @@
 package org.bytewright.MediaLibManager.libChecker;
 
-import org.bytewright.MediaLibManager.resultDTOs.CheckFileSizeResult;
-import org.bytewright.MediaLibManager.resultDTOs.CheckNameResult;
-import org.bytewright.MediaLibManager.resultDTOs.CheckResult;
-import org.bytewright.MediaLibManager.resultDTOs.CheckVideoCountResult;
+import org.bytewright.MediaLibManager.resultDTOs.*;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class ResultTypesProvider {
     public Collection<Class<? extends CheckResult>> getResultTypes() {
-        return List.of(CheckVideoCountResult.class, CheckNameResult.class, CheckFileSizeResult.class);
+        return List.of(
+                CheckVideoCountResult.class,
+                CheckNameResult.class,
+                CheckFileSizeResult.class,
+                CheckNoAudioFoundResult.class,
+                CheckAudioStreamsResult.class,
+                CheckAudioQualityResult.class,
+                CheckNoVideoFoundResult.class,
+                CheckVideoResolutionResult.class,
+                CheckNameDoubleSpacesResult.class
+        );
     }
 
     public List<CheckResult> sort(Class<? extends CheckResult> resultType, List<? extends CheckResult> checkResults) {
