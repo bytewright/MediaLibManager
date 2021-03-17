@@ -9,7 +9,7 @@ import org.bytewright.MediaLibManager.resultDTOs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,23 +21,22 @@ import java.util.stream.Collectors;
 public class MCC_jaffree implements MediaContentChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(MCC_jaffree.class);
     private static final Pattern IS_BAD_AUDIO_QUALI_PATTERN = Pattern.compile("(mic)", Pattern.CASE_INSENSITIVE);
-    private final File videoFile;
+    private final Path videoFile;
 
-    public MCC_jaffree(File videoFile) {
+    public MCC_jaffree(Path videoFile) {
         this.videoFile = videoFile;
     }
 
     @Override
     public void performChecks(Consumer<CheckResult> resultCollector) {
-        String pathToVideo = videoFile.getAbsolutePath();
         FFprobeResult result = FFprobe.atPath()
                 .setShowStreams(true)
-                .setInput(pathToVideo)
+                .setInput(videoFile)
                 .execute();
         List<Stream> streams = result.getStreams();
         Map<StreamType, List<Stream>> collect = streams.stream()
                 .collect(Collectors.toMap(Stream::getCodecType, List::of, this::mergeLists));
-        LOGGER.trace("File {} contains {} streams", pathToVideo, streams.size());
+        LOGGER.trace("File {} contains {} streams", videoFile, streams.size());
         List<Stream> audioStreams = collect.get(StreamType.AUDIO);
         checkAudioStreams(resultCollector, audioStreams);
         List<Stream> videoStreams = collect.get(StreamType.VIDEO);
@@ -50,7 +49,7 @@ public class MCC_jaffree implements MediaContentChecker {
 
     private void checkAudioStreams(Consumer<CheckResult> resultCollector, List<Stream> audioStreams) {
         if (audioStreams == null || audioStreams.isEmpty()) {
-            resultCollector.accept(new CheckNoAudioFoundResult(videoFile.getAbsolutePath()));
+            resultCollector.accept(new CheckNoAudioFoundResult(videoFile));
             return;
         }
         LOGGER.debug("Found {} audio streams in file {}", audioStreams.size(), videoFile);
@@ -67,12 +66,12 @@ public class MCC_jaffree implements MediaContentChecker {
         LOGGER.debug("Found tags on audio stream: {}", audioLanguages);
         if (audioLanguages.size() == 1) {
             String languageFound = audioLanguages.keySet().stream().findFirst().orElse("FAIL");
-            resultCollector.accept(new CheckAudioStreamsResult(videoFile.getAbsolutePath(), languageFound));
+            resultCollector.accept(new CheckAudioStreamsResult(videoFile, languageFound));
         } else {
             audioLanguages.values().stream()
                     .filter(this::hasBadAudioQuality)
                     .findAny()
-                    .map(s -> new CheckAudioQualityResult(videoFile.getAbsolutePath(), s))
+                    .map(s -> new CheckAudioQualityResult(videoFile, s))
                     .ifPresent(resultCollector);
         }
     }
@@ -89,7 +88,7 @@ public class MCC_jaffree implements MediaContentChecker {
 
     private void checkVideoStream(Consumer<CheckResult> resultCollector, List<Stream> videoStreams) {
         if (videoStreams == null || videoStreams.isEmpty()) {
-            resultCollector.accept(new CheckNoVideoFoundResult(videoFile.getAbsolutePath()));
+            resultCollector.accept(new CheckNoVideoFoundResult(videoFile));
             return;
         }
         Stream videoStream = videoStreams.get(0);
@@ -98,8 +97,8 @@ public class MCC_jaffree implements MediaContentChecker {
         String codecName = videoStream.getCodecName();
         LOGGER.debug("Found {} video streams in file {}, first has resolution and codec: {}x{}px {}",
                 videoStreams.size(), videoFile, width, height, codecName);
-        if (width+height<1500) {
-            resultCollector.accept(new CheckVideoResolutionResult(videoFile.getAbsolutePath(), width, height));
+        if (width + height < 1500) {
+            resultCollector.accept(new CheckVideoResolutionResult(videoFile, width, height));
         }
     }
 }

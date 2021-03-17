@@ -1,11 +1,13 @@
 package org.bytewright.MediaLibManager.resultDTOs;
 
+import java.nio.file.Path;
+
 public class CheckVideoResolutionResult extends CheckResult {
     private final Integer width;
     private final Integer height;
 
-    public CheckVideoResolutionResult(String absolutePath, Integer width, Integer height) {
-        super(absolutePath);
+    public CheckVideoResolutionResult(Path path, Integer width, Integer height) {
+        super(path.toAbsolutePath().toString());
         this.width = width;
         this.height = height;
     }

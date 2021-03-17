@@ -1,10 +1,12 @@
 package org.bytewright.MediaLibManager.resultDTOs;
 
+import java.nio.file.Path;
+
 public class CheckAudioStreamsResult extends CheckResult {
     private final String languageFound;
 
-    public CheckAudioStreamsResult(String absolutePath, String languageFound) {
-        super(absolutePath);
+    public CheckAudioStreamsResult(Path path, String languageFound) {
+        super(path.toAbsolutePath().toString());
         this.languageFound = languageFound;
     }
 
