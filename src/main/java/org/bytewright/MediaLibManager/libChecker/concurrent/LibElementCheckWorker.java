@@ -77,7 +77,7 @@ public class LibElementCheckWorker extends Thread {
                 LOGGER.error("Can't check {} because its not a dir", path);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception while checking path {}", path, e);
         }
     }
 

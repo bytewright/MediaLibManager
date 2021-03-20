@@ -2,20 +2,17 @@ package org.bytewright.MediaLibManager.libChecker.concurrent;
 
 import org.bytewright.MediaLibManager.libChecker.LibElement;
 import org.bytewright.MediaLibManager.libChecker.ResultCollector;
-import org.bytewright.MediaLibManager.resultDTOs.CheckResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Queue;
-import java.util.function.Consumer;
 
 @Service
 public class WorkerFactory {
-    private Consumer<Runnable> taskConsumer;
+    private TaskConsumer taskConsumer;
     private ResultCollector resultCollector;
 
-    public void setNewTaskConsumer(Consumer<Runnable> taskConsumer) {
+    public void setNewTaskConsumer(TaskConsumer taskConsumer) {
         this.taskConsumer = taskConsumer;
     }
 

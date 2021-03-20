@@ -5,10 +5,8 @@ import org.bytewright.MediaLibManager.libChecker.concurrent.WorkerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.ContextStartedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class LibraryChecker {
+public class LibraryChecker implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LibraryChecker.class);
     @Autowired
     private DirSource dirSource;
@@ -27,12 +25,14 @@ public class LibraryChecker {
     @Autowired
     private TerminatingExecutor terminatingExecutor;
 
-    @EventListener
-    @Async
-    public void onContextRefreshed(ContextRefreshedEvent event) throws IOException {
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         LOGGER.info("Starting to parse library after ContextRefreshedEvent: {}", event);
-        startChecking();
-
+        try {
+            startChecking();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void startChecking() throws IOException {
